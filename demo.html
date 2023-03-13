@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Custom chart</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>Custom Chart</h1>
+    <div id="chartContainer"></div>
+    <table id="dataTable"></table>
+    <script src="./math.js"></script>
+    <script>
+      const N = 1000;
+      const samples = [];
+      for (let i = 0; i < N; i++) {
+        const type = Math.random() < 0.5 ? "basic" : "sport";
+        const km = math.lerp(3000, 300000, Math.random());
+        const price = math.lerp(9000, 900, Math.random());
+        const car = { type, km, price };
+        samples.push({
+          id: i,
+          label: type,
+          point: [km, price],
+        });
+      }
+
+      const header = dataTable.createTHead();
+      const tr = header.insertRow();
+      tr.insertCell().innerHTML = "ID";
+      tr.insertCell().innerHTML = "Type";
+      tr.insertCell().innerHTML = "Km";
+      tr.insertCell().innerHTML = "Price";
+
+      const body = dataTable.createTBody();
+      for (const sample of samples) {
+        const tr = body.insertRow();
+        tr.insertCell().innerHTML = sample.id;
+        tr.insertCell().innerHTML = sample.label;
+        tr.insertCell().innerHTML = sample.point[0];
+        tr.insertCell().innerHTML = sample.point[1];
+      }
+    </script>
+  </body>
+</html>
