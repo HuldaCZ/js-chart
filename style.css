@@ -6,3 +6,21 @@ body {
     line-height: 1.42857143;
     margin: 0;
 }
+
+table,td {
+    border: 1px solid #000000;
+    border-collapse: collapse;
+    padding: 5px;
+    text-align: center;
+}
+
+thead {
+    font-weight: bold;
+}
+
+#chartContainer {
+    position: fixed;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}
