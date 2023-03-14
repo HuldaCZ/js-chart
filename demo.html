@@ -22,7 +22,7 @@
         const km = math.lerp(3000, 300000, Math.random());
         const t = math.invLerp(3000, 300000, km);
         const price =
-          math.remap(3000, 300000, 9000, 900, km) +
+          math.remap(3000, 300000, 900, 9000, km) +
           math.lerp(-2000, 2000, Math.random()) +
           (type === "sport" ? 5000 : 0);
         const car = { type, km, price };
@@ -34,8 +34,8 @@
       }
 
       const options = {
-        size: 250,
-        axisLabels: ["Km", "Price"],
+        size: 500,
+        axesLabels: ["Km", "Price"],
         styles: {
           basic: "gray",
           sport: "red",

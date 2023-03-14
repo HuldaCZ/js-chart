@@ -15,3 +15,11 @@ math.remap = (oldA, oldB, newA, newB, v) => {
 math.formatNumber = (n, dec=0) => {
   return n.toFixed(dec)
 }
+
+math.remapPoint = (oldBounds, newBounds, point) => {
+  const pixelLoc = [
+    math.remap(oldBounds.left, oldBounds.right, newBounds.left, newBounds.right, point[0]),
+    math.remap(oldBounds.top, oldBounds.bottom, newBounds.top, newBounds.bottom, point[1]),
+  ]
+  return pixelLoc
+}

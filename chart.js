@@ -6,7 +6,7 @@ class Chart {
     this.styles = options.styles;
 
     this.canvas = document.createElement("canvas");
-    this.canvas.width = options.size;
+    this.canvas.width = options.size ;
     this.canvas.height = options.size;
 
     this.canvas.style = "background-color: #fff";
@@ -52,20 +52,95 @@ class Chart {
     const { ctx, canvas, transparency } = this;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    this.#drawAxes();
     ctx.globalAlpha = transparency;
     this.#drawSamples();
     ctx.globalAlpha = 1;
+  }
+
+  #drawAxes() {
+    const { ctx, canvas, axesLabels, margin } = this;
+    const { left, right, top, bottom } = this.pixelBounds;
+    graphics.drawText(ctx, {
+      text: axesLabels[0],
+      loc: [canvas.width / 2, bottom + margin / 2],
+      size: margin * 0.6,
+    });
+
+    ctx.save();
+    ctx.translate(left - margin / 2, canvas.height / 2);
+    ctx.rotate(-Math.PI / 2);
+    graphics.drawText(ctx, {
+      text: axesLabels[1],
+      loc: [0, 0],
+      size: margin * 0.6,
+    });
+    ctx.restore();
+
+    ctx.beginPath();
+    ctx.moveTo(left, top);
+    ctx.lineTo(left, bottom);
+    ctx.lineTo(right, bottom);
+    ctx.setLineDash([5, 4]);
+    ctx.strokeStyle = "#000";
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    const dataMin = math.remapPoint(this.pixelBounds, this.dataBounds, [left, bottom]);
+
+    graphics.drawText(ctx, {
+      text: math.formatNumber(dataMin[0], 2),
+      loc: [left, bottom + margin / 3],
+      size: margin * 0.3,
+      align: "left",
+      vlAlign: "top",
+    });
+
+    ctx.save()
+    ctx.translate(left, bottom)
+    ctx.rotate(-Math.PI / 2)
+    graphics.drawText(ctx, {
+        text: math.formatNumber(dataMin[1], 2),
+        loc: [0, 0 - margin / 5],
+        size: margin * 0.3,
+        align: "left",
+        vlAlign: "bottom",
+    })
+    ctx.restore()
+
+    const dataMax = math.remapPoint(this.pixelBounds, this.dataBounds, [right, top]);
+
+    graphics.drawText(ctx, {
+        text: math.formatNumber(dataMax[0], 2),
+        loc: [right, bottom + margin / 3],
+        size: margin * 0.3,
+        align: "right",
+        vlAlign: "top",
+    })
+
+    ctx.save()
+    ctx.translate(left, top)
+    ctx.rotate(-Math.PI / 2)
+    graphics.drawText(ctx, {
+        text: math.formatNumber(dataMax[1], 2),
+        loc: [0, 0 - margin / 5],
+        size: margin * 0.3,
+        align: "right",
+        vlAlign: "bottom",
+    })
+    ctx.restore()
+
+
+
+
   }
 
   #drawSamples() {
     const { ctx, samples, pixelBounds, dataBounds } = this;
     for (const sample of samples) {
       const { point } = sample;
-      const pixelLoc = [
-        math.remap(dataBounds.left, dataBounds.right, pixelBounds.left, pixelBounds.right, point[0]),
-        math.remap(dataBounds.top, dataBounds.bottom, pixelBounds.top, pixelBounds.bottom, point[1]),
-      ]
-      graphics.drawPiont(ctx, pixelLoc)
+      const pixelLoc = math.remapPoint(dataBounds, pixelBounds, point);
+      graphics.drawPiont(ctx, pixelLoc);
     }
   }
 }
