@@ -6,7 +6,7 @@ class Chart {
     this.styles = options.styles;
 
     this.canvas = document.createElement("canvas");
-    this.canvas.width = options.size ;
+    this.canvas.width = options.size;
     this.canvas.height = options.size;
 
     this.canvas.style = "background-color: #fff";
@@ -18,10 +18,67 @@ class Chart {
     this.margin = options.size * 0.1;
     this.transparency = 0.5;
 
+    this.dataTrans = {
+      offset: [0, 0],
+      scale: 1,
+    };
+    this.dragInfo = {
+      start: [0, 0],
+      end: [0, 0],
+      offset: [0, 0],
+      dragging: false,
+    };
+
     this.pixelBounds = this.#getPixelBounds();
     this.dataBounds = this.#getDataBounds();
+    this.defaultDataBounds = this.#getDataBounds();
 
     this.#draw();
+
+    this.#addEventListeners();
+  }
+
+  #addEventListeners() {
+    const { canvas, dataTrans, dragInfo } = this;
+    canvas.onmousedown = (e) => {
+      const dataLoc = this.#getMouse(e, true);
+      dragInfo.start = dataLoc;
+      dragInfo.dragging = true;
+    };
+
+    canvas.onmousemove = (e) => {
+      if (dragInfo.dragging) {
+        const dataLoc = this.#getMouse(e, true);
+        dragInfo.end = dataLoc;
+        dragInfo.offset = math.subtract(dragInfo.start, dragInfo.end);
+        const newOffset = math.add(dataTrans.offset, dragInfo.offset);
+        this.#updateDataBounds(newOffset);
+        this.#draw();
+      }
+    };
+
+    canvas.onmouseup = (e) => {
+      dataTrans.offset = math.add(dataTrans.offset, dragInfo.offset);
+      dragInfo.dragging = false;
+    }
+  }
+
+  #updateDataBounds(offset) {
+    const { dataBounds, defaultDataBounds:def } = this;
+    dataBounds.left = def.left + offset[0];
+    dataBounds.right = def.right + offset[0];
+    dataBounds.top = def.top + offset[1];
+    dataBounds.bottom = def.bottom + offset[1];
+  }
+
+  #getMouse(e, dataSpace = false) {
+    const rect = this.canvas.getBoundingClientRect();
+    const pixelLoc = [e.clientX - rect.left, e.clientY - rect.top];
+    if (dataSpace) {
+      const dataLoc = math.remapPoint(this.pixelBounds, this.defaultDataBounds, pixelLoc);
+      return dataLoc;
+    }
+    return pixelLoc;
   }
 
   #getPixelBounds() {
@@ -96,43 +153,39 @@ class Chart {
       vlAlign: "top",
     });
 
-    ctx.save()
-    ctx.translate(left, bottom)
-    ctx.rotate(-Math.PI / 2)
+    ctx.save();
+    ctx.translate(left, bottom);
+    ctx.rotate(-Math.PI / 2);
     graphics.drawText(ctx, {
-        text: math.formatNumber(dataMin[1], 2),
-        loc: [0, 0 - margin / 5],
-        size: margin * 0.3,
-        align: "left",
-        vlAlign: "bottom",
-    })
-    ctx.restore()
+      text: math.formatNumber(dataMin[1], 2),
+      loc: [0, 0 - margin / 5],
+      size: margin * 0.3,
+      align: "left",
+      vlAlign: "bottom",
+    });
+    ctx.restore();
 
     const dataMax = math.remapPoint(this.pixelBounds, this.dataBounds, [right, top]);
 
     graphics.drawText(ctx, {
-        text: math.formatNumber(dataMax[0], 2),
-        loc: [right, bottom + margin / 3],
-        size: margin * 0.3,
-        align: "right",
-        vlAlign: "top",
-    })
+      text: math.formatNumber(dataMax[0], 2),
+      loc: [right, bottom + margin / 3],
+      size: margin * 0.3,
+      align: "right",
+      vlAlign: "top",
+    });
 
-    ctx.save()
-    ctx.translate(left, top)
-    ctx.rotate(-Math.PI / 2)
+    ctx.save();
+    ctx.translate(left, top);
+    ctx.rotate(-Math.PI / 2);
     graphics.drawText(ctx, {
-        text: math.formatNumber(dataMax[1], 2),
-        loc: [0, 0 - margin / 5],
-        size: margin * 0.3,
-        align: "right",
-        vlAlign: "bottom",
-    })
-    ctx.restore()
-
-
-
-
+      text: math.formatNumber(dataMax[1], 2),
+      loc: [0, 0 - margin / 5],
+      size: margin * 0.3,
+      align: "right",
+      vlAlign: "bottom",
+    });
+    ctx.restore();
   }
 
   #drawSamples() {

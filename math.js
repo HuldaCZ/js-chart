@@ -23,3 +23,11 @@ math.remapPoint = (oldBounds, newBounds, point) => {
   ]
   return pixelLoc
 }
+
+math.add = (a, b) => {
+  return [a[0] + b[0], a[1] + b[1]]
+}
+
+math.subtract = (a, b) => {
+  return [a[0] - b[0], a[1] - b[1]]
+}
