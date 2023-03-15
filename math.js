@@ -31,3 +31,7 @@ math.add = (a, b) => {
 math.subtract = (a, b) => {
   return [a[0] - b[0], a[1] - b[1]]
 }
+
+math.scale = (a, s) => {
+  return [a[0] * s, a[1] * s]
+}

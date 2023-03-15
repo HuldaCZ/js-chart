@@ -50,7 +50,7 @@ class Chart {
       if (dragInfo.dragging) {
         const dataLoc = this.#getMouse(e, true);
         dragInfo.end = dataLoc;
-        dragInfo.offset = math.subtract(dragInfo.start, dragInfo.end);
+        dragInfo.offset = math.scale(math.subtract(dragInfo.start, dragInfo.end), dataTrans.scale);
         const newOffset = math.add(dataTrans.offset, dragInfo.offset);
         this.#updateDataBounds(newOffset, dataTrans.scale);
         this.#draw();
@@ -64,7 +64,7 @@ class Chart {
 
     canvas.onwheel = (e) => {
       const dir = Math.sign(e.deltaY);
-      const scale = 1 + dir * 0.1; // 10% scale
+      const scale = 1 + dir * 0.1;
       dataTrans.scale *= scale;
       this.#updateDataBounds(dataTrans.offset, dataTrans.scale);
       this.#draw();
@@ -84,11 +84,10 @@ class Chart {
       (dataBounds.top + dataBounds.bottom) / 2,
     ];
 
-    dataBounds.left = math.lerp(center[0], dataBounds.left, scale);
-    dataBounds.right = math.lerp(center[0], dataBounds.right, scale);
-    dataBounds.top = math.lerp(center[1], dataBounds.top, scale);
-    dataBounds.bottom = math.lerp(center[1], dataBounds.bottom, scale);
-
+    dataBounds.left = math.lerp(center[0], dataBounds.left, scale**2);
+    dataBounds.right = math.lerp(center[0], dataBounds.right, scale**2);
+    dataBounds.top = math.lerp(center[1], dataBounds.top, scale**2);
+    dataBounds.bottom = math.lerp(center[1], dataBounds.bottom, scale**2);
   }
 
   #getMouse(e, dataSpace = false) {
@@ -213,7 +212,7 @@ class Chart {
     for (const sample of samples) {
       const { point } = sample;
       const pixelLoc = math.remapPoint(dataBounds, pixelBounds, point);
-      graphics.drawPiont(ctx, pixelLoc);
+      graphics.drawPiont(ctx, pixelLoc, this.styles[sample.label]);
     }
   }
 }
