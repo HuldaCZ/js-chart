@@ -35,3 +35,21 @@ math.subtract = (a, b) => {
 math.scale = (a, s) => {
   return [a[0] * s, a[1] * s]
 }
+
+math.distance = (a, b) => {
+  return Math.sqrt((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
+}
+
+math.getNearest = (loc, points) => {
+  let minDist = Number.MAX_VALUE;
+  let nearestIndex = 0;
+  for(let i = 0; i < points.length; i++) {
+    const point = points[i]
+    const dist = math.distance(loc, point)
+    if(dist < minDist) {
+      minDist = dist
+      nearestIndex = i
+    }
+  }
+  return nearestIndex
+}
