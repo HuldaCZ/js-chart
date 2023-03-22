@@ -13,7 +13,7 @@
     <table id="dataTable"></table>
     <script src="./graphics.js"></script>
     <script src="./math.js"></script>
-    <script src="./chart.js" ></script>
+    <script src="./chart.js"></script>
     <script>
       const N = 1000;
       const samples = [];
@@ -37,16 +37,17 @@
         size: 500,
         axesLabels: ["Km", "Price"],
         styles: {
-          basic: "gray",
-          sport: "red",
-        }
-      }
+          basic: { color: "gray", text: "🚗" },
+          sport: { color: "red", text: "🏎" },
+        },
+        icon: "image",
+      };
 
-      const chart = new Chart(
-        chartContainer,
-        samples,
-        options
-      )
+      graphics.generateImages(options.styles);
+
+      setTimeout(() => {
+        const chart = new Chart(chartContainer, samples, options);
+      }, 100);
 
       const header = dataTable.createTHead();
       const tr = header.insertRow();
