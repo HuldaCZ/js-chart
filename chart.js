@@ -1,10 +1,11 @@
 class Chart {
-  constructor(container, samples, options) {
+  constructor(container, samples, options, onClick) {
     this.samples = samples;
 
     this.axesLabels = options.axesLabels;
     this.styles = options.styles;
     this.icon = options.icon;
+    this.onClick = onClick;
 
     this.canvas = document.createElement("canvas");
     this.canvas.width = options.size;
@@ -34,6 +35,7 @@ class Chart {
     this.dataBounds = this.#getDataBounds();
     this.defaultDataBounds = this.#getDataBounds();
     this.hoveredSample = null;
+    this.selectedSample = null;
 
     this.#draw();
 
@@ -65,7 +67,7 @@ class Chart {
       const index = math.getNearest(pLoc, pPoints);
       const nearest = this.samples[index];
       const dist = math.distance(pPoints[index], pLoc);
-      if(dist < this.margin/2) {
+      if (dist < this.margin / 2) {
         this.hoveredSample = nearest;
       } else {
         this.hoveredSample = null;
@@ -85,6 +87,14 @@ class Chart {
       this.#updateDataBounds(dataTrans.offset, dataTrans.scale);
       this.#draw();
       e.preventDefault();
+    };
+
+    canvas.onclick = (e) => {
+      if (this.hoveredSample) {
+        this.selectedSample = this.hoveredSample;
+        if (this.onClick) this.onClick(this.selectedSample);
+        this.#draw();
+      }
     };
   }
 
@@ -152,6 +162,11 @@ class Chart {
     if (this.hoveredSample) {
       this.#emphasizeSample(this.hoveredSample);
     }
+
+    if (this.selectedSample) {
+      this.#emphasizeSample(this.selectedSample, "yellow");
+    }
+
   }
 
   #emphasizeSample(sample, color = "white") {
@@ -159,7 +174,7 @@ class Chart {
     const grd = this.ctx.createRadialGradient(...pLoc, 0, ...pLoc, this.margin);
     grd.addColorStop(0, color);
     grd.addColorStop(1, "transparent");
-    graphics.drawPiont(this.ctx, pLoc, grd, this.margin * 2);
+    graphics.drawPiont(this.ctx, pLoc, grd, this.margin);
     this.#drawSamples([sample]);
   }
 

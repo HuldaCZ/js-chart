@@ -24,3 +24,7 @@ thead {
     top: 50%;
     transform: translateY(-50%);
 }
+
+.emphasized {
+    background: #fbff00;
+}

@@ -46,7 +46,7 @@
       graphics.generateImages(options.styles);
 
       setTimeout(() => {
-        const chart = new Chart(chartContainer, samples, options);
+        const chart = new Chart(chartContainer, samples, options, handleClick);
       }, 100);
 
       const header = dataTable.createTHead();
@@ -59,10 +59,22 @@
       const body = dataTable.createTBody();
       for (const sample of samples) {
         const tr = body.insertRow();
+        tr.id = "sample_" + sample.id;
         tr.insertCell().innerHTML = sample.id;
         tr.insertCell().innerHTML = sample.label;
         tr.insertCell().innerHTML = math.formatNumber(sample.point[0]);
         tr.insertCell().innerHTML = math.formatNumber(sample.point[1]);
+      }
+
+      function handleClick(sample) {
+        [...dataTable.querySelectorAll(".emphasized")].forEach((tr) => tr.classList.remove("emphasized"));
+
+        const tr = document.getElementById("sample_" + sample.id);
+        tr.classList.add("emphasized");
+        tr.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
       }
     </script>
   </body>
