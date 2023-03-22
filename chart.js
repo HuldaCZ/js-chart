@@ -48,6 +48,8 @@ class Chart {
       const dataLoc = this.#getMouse(e, true);
       dragInfo.start = dataLoc;
       dragInfo.dragging = true;
+      dragInfo.offset = [0, 0];
+      dragInfo.end = [0, 0];
     };
 
     canvas.onmousemove = (e) => {
@@ -56,7 +58,7 @@ class Chart {
         dragInfo.end = dataLoc;
         dragInfo.offset = math.scale(math.subtract(dragInfo.start, dragInfo.end), dataTrans.scale);
         const newOffset = math.add(dataTrans.offset, dragInfo.offset);
-        this.#updateDataBounds(newOffset, dataTrans.scale);
+        this.#updateDataBounds(newOffset, dataTrans.scale ** 2);
         this.#draw();
       }
       const pLoc = this.#getMouse(e);
@@ -78,6 +80,8 @@ class Chart {
     canvas.onmouseup = (e) => {
       dataTrans.offset = math.add(dataTrans.offset, dragInfo.offset);
       dragInfo.dragging = false;
+      dragInfo.offset = [0, 0];
+      dragInfo.end = [0, 0];
     };
 
     canvas.onwheel = (e) => {
@@ -90,11 +94,19 @@ class Chart {
     };
 
     canvas.onclick = (e) => {
+      if (!math.equals(dragInfo.offset, [0, 0])) return;
       if (this.hoveredSample) {
-        this.selectedSample = this.hoveredSample;
-        if (this.onClick) this.onClick(this.selectedSample);
-        this.#draw();
+        if (this.selectedSample === this.hoveredSample) {
+          this.selectedSample = null;
+        } else {
+          this.selectedSample = this.hoveredSample;
+        }
+        this.#draw()
+      } else {
+        this.selectedSample = null;
       }
+      if (this.onClick) this.onClick(this.selectedSample);
+      this.#draw();
     };
   }
 
@@ -154,7 +166,6 @@ class Chart {
     const { ctx, canvas, transparency } = this;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    this.#drawAxes();
     ctx.globalAlpha = transparency;
     this.#drawSamples(this.samples);
     ctx.globalAlpha = 1;
@@ -166,7 +177,7 @@ class Chart {
     if (this.selectedSample) {
       this.#emphasizeSample(this.selectedSample, "yellow");
     }
-
+    this.#drawAxes();
   }
 
   selectSample(sample) {
@@ -186,6 +197,12 @@ class Chart {
   #drawAxes() {
     const { ctx, canvas, axesLabels, margin } = this;
     const { left, right, top, bottom } = this.pixelBounds;
+
+    ctx.clearRect(0, 0, canvas.width, margin);
+    ctx.clearRect(0, 0, margin, canvas.height);
+    ctx.clearRect(0, canvas.height - margin, canvas.width, margin);
+    ctx.clearRect(canvas.width - margin, 0, margin, canvas.height);
+
     graphics.drawText(ctx, {
       text: axesLabels[0],
       loc: [canvas.width / 2, bottom + margin / 2],

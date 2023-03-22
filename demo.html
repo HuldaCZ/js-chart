@@ -72,7 +72,16 @@
           tr.classList.remove("emphasized")
         );
 
+        if (!sample) return;
+
         const tr = document.getElementById("sample_" + sample.id);
+
+        if (tr.classList.contains("emphasized")) {
+          tr.classList.remove("emphasized");
+          chart.selectSample(null);
+          return;
+        }
+
         tr.classList.add("emphasized");
         if (scroll) {
           tr.scrollIntoView({
