@@ -44,9 +44,9 @@
       };
 
       graphics.generateImages(options.styles);
-
+      let chart;
       setTimeout(() => {
-        const chart = new Chart(chartContainer, samples, options, handleClick);
+        chart = new Chart(chartContainer, samples, options, handleClick);
       }, 100);
 
       const header = dataTable.createTHead();
@@ -60,21 +60,28 @@
       for (const sample of samples) {
         const tr = body.insertRow();
         tr.id = "sample_" + sample.id;
+        tr.onclick = () => handleClick(sample, false);
         tr.insertCell().innerHTML = sample.id;
         tr.insertCell().innerHTML = sample.label;
         tr.insertCell().innerHTML = math.formatNumber(sample.point[0]);
         tr.insertCell().innerHTML = math.formatNumber(sample.point[1]);
       }
 
-      function handleClick(sample) {
-        [...dataTable.querySelectorAll(".emphasized")].forEach((tr) => tr.classList.remove("emphasized"));
+      function handleClick(sample, scroll = true) {
+        [...dataTable.querySelectorAll(".emphasized")].forEach((tr) =>
+          tr.classList.remove("emphasized")
+        );
 
         const tr = document.getElementById("sample_" + sample.id);
         tr.classList.add("emphasized");
-        tr.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
+        if (scroll) {
+          tr.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+        }
+
+        chart.selectSample(sample);
       }
     </script>
   </body>
